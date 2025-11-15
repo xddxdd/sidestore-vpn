@@ -20,9 +20,16 @@ You will also need to enable IP forwarding on that Linux machine.
 
 Install `cargo` on your Linux machine, clone this repo, and run:
 
-```
+```bash
 cargo build --release
 sudo target/release/sidestore-vpn
+```
+
+Or build and run the docker container:
+
+```bash
+docker build -t sidestore-vpn:latest .
+docker run -d sidestore-vpn:latest .
 ```
 
 A new TUN device will be created, and start handling traffic to `10.7.0.1`.
