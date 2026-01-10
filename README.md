@@ -20,7 +20,7 @@ You will also need to enable IP forwarding on that Linux machine.
 
 Install `cargo` on your Linux machine, clone this repo, and run:
 
-```
+```bash
 cargo build --release
 sudo target/release/sidestore-vpn
 ```
@@ -40,6 +40,33 @@ If your router doesn't allow you to create a `/32` route, you can expand the rou
 - Gateway: IP address of the computer running this tool.
 
 Once configured, your iOS devices should be able to install/refresh apps without WireGuard or StosVPN.
+
+## systemd-service
+
+To start the service when the system boots you can add the following systemd service:
+
+```
+[Unit]
+Description=Sidestore app signing
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/YOUR_USERNAME_HERE/sidestore-vpn/target/release/sidestore-vpn
+User=root
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Ensure the `ExecStart` path is correct. To enable it:
+
+1. Write the above configuration to sudo `/etc/systemd/system/sidestore.service`
+2. Run `sudo systemctl daemon-reload` to load the service
+3. Run `sudo systemctl enable sidestore` to enable the service
+4. Run `sudo systemctl start sidestore` to start the service
+5. Run `sudo systemctl status sidestore` to check if the service is running 
 
 # Credit
 
