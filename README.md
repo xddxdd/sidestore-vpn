@@ -46,8 +46,26 @@ Once configured, your iOS devices should be able to install/refresh apps without
 A Docker image is available at `ghcr.io/xddxdd/sidestore-vpn`:
 
 ```bash
-docker run --rm --cap-add=NET_ADMIN --network=host ghcr.io/xddxdd/sidestore-vpn
+docker run --rm --cap-add=NET_ADMIN --network=host --device /dev/net/tun:/dev/net/tun ghcr.io/xddxdd/sidestore-vpn
 ```
+
+## Docker compose
+
+```bash
+services:
+  sidestore-vpn:
+    image: ghcr.io/xddxdd/sidestore-vpn
+      cap_add:
+        - NET_ADMIN
+      network_mode: host
+        devices:
+          - /dev/net/tun:/dev/net/tun
+```
+
+The container requires the `/dev/net/tun` device, as well as `network_mode: host` to create the interface. The `NET_ADMIN` permission allows the container to perform network-related tasks that require elevated permissions.
+
+An alternative to both would be to use `privileged` in the `docker run` command or `privileged: true` in the docker compose.
+Because the binary is the only thing in the image the bare minimum is used.
 
 ## systemd-service
 
