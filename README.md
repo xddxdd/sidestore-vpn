@@ -41,6 +41,14 @@ If your router doesn't allow you to create a `/32` route, you can expand the rou
 
 Once configured, your iOS devices should be able to install/refresh apps without WireGuard or StosVPN.
 
+## Docker
+
+A Docker image is available at `ghcr.io/xddxdd/sidestore-vpn`:
+
+```bash
+docker run --rm --cap-add=NET_ADMIN --network=host ghcr.io/xddxdd/sidestore-vpn
+```
+
 ## systemd-service
 
 To start the service when the system boots you can add the following systemd service:
