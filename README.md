@@ -51,7 +51,7 @@ docker run --rm --cap-add=NET_ADMIN --network=host --device /dev/net/tun:/dev/ne
 
 ## Docker compose
 
-```bash
+```yaml
 services:
   sidestore-vpn:
     image: ghcr.io/xddxdd/sidestore-vpn
@@ -66,6 +66,24 @@ The container requires the `/dev/net/tun` device, as well as `network_mode: host
 
 An alternative to both would be to use `privileged` in the `docker run` command or `privileged: true` in the docker compose.
 Because the binary is the only thing in the image the bare minimum is used.
+
+## Examples with Tailscale
+
+```bash
+docker run --rm --cap-add=NET_ADMIN -v /dev/net/tun:/dev/net/tun ghcr.io/xddxdd/sidestore-vpn:tailscale
+```
+
+```bash
+docker run --rm --cap-add=NET_ADMIN -v /dev/net/tun:/dev/net/tun -v ./state:/var/lib/tailscale \
+  -e TS_AUTHKEY=tskey-xxxxxxx \
+  -e TS_HOSTNAME=sidestore-vpn \
+  ghcr.io/xddxdd/sidestore-vpn:tailscale
+```
+
+```bash
+echo "TS_AUTHKEY=tskey-xxxxxxx" > .env
+docker compose -f docker-compose-tailscale.yml up
+```
 
 ## systemd-service
 
