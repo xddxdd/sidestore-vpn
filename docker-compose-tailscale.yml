@@ -1,0 +1,21 @@
+services:
+  sidestore-vpn:
+    image: ghcr.io/xddxdd/sidestore-vpn:latest
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    network_mode: service:sidestore-vpn-tailscale
+    depends_on:
+      - sidestore-vpn-tailscale
+  sidestore-vpn-tailscale:
+    image: tailscale/tailscale:latest
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - TS_USERSPACE=false
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_ROUTES=${TS_ROUTES:-10.7.0.1/32}
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:---snat-subnet-routes=false}

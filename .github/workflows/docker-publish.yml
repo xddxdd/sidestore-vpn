@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
     tags: ['v*']
+  pull_request:
+    branches: [master]
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/sidestore-vpn
 
 jobs:
   build-and-push:
@@ -24,18 +29,39 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/xddxdd/sidestore-vpn
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+      - id: meta_variants
+        run: |
+          tags='${{ steps.meta.outputs.tags }}'
+          {
+            echo "base_tags<<EOF"
+            printf '%s\n' "$tags" | sed -n 'p; h; s/$/-base/p; g; s/:latest$/:base/p'
+            echo "EOF"
+            echo "tailscale_tags<<EOF"
+            printf '%s\n' "$tags" | sed -n 'h; s/$/-tailscale/p; g; s/:latest$/:tailscale/p'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
           context: .
+          target: base
           platforms: linux/amd64,linux/arm64/v8,linux/ppc64le
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta_variants.outputs.base_tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: tailscale
+          platforms: linux/amd64,linux/arm64/v8
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta_variants.outputs.tailscale_tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
